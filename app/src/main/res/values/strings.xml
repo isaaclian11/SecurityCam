@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">SecurityCam</string>
+    <string name="home">Home</string>
+    <string name="camera">Camera</string>
+    <string name="user">User</string>
+    <string name="clips">Clips</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_camera_fragment">Hello Camera Fragment</string>
+    <string name="hello_clip_fragment">Hello Clip Fragment</string>
+    <string name="hello_user_fragment">Hello User Fragment</string>
+    <string name="hello_home_fragment">Hello Home Fragment</string>
+
+
 </resources>
