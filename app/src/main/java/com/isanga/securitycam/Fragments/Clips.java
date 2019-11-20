@@ -65,7 +65,10 @@ public class Clips extends Fragment {
      *
      */
     public void populateList(){
-        File folder = getContext().getExternalFilesDir("SecurityCam");
+        File folder = getContext().getExternalFilesDir("media");
+        if(!folder.exists()){
+            folder.mkdir();
+        }
         File[] files = folder.listFiles();
         for(File file: files){
             String filename = file.getName();
