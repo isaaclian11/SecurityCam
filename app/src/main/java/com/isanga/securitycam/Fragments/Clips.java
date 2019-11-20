@@ -67,7 +67,7 @@ public class Clips extends Fragment {
     public void populateList(){
         File folder = getContext().getExternalFilesDir("media");
         if(!folder.exists()){
-            folder.mkdir();
+            return;
         }
         File[] files = folder.listFiles();
         for(File file: files){
