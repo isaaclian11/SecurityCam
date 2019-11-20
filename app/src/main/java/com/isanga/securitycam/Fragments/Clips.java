@@ -16,8 +16,6 @@ import com.isanga.securitycam.Adapters.ClipsRecyclerViewAdapter;
 import com.isanga.securitycam.Models.ClipsModel;
 import com.isanga.securitycam.R;
 
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -64,13 +62,15 @@ public class Clips extends Fragment {
 
     /**
      * Scans folder and shows list of clips
-     * Used an external library to strip characters from file name
+     *
      */
     public void populateList(){
         File folder = getContext().getExternalFilesDir("SecurityCam");
         File[] files = folder.listFiles();
         for(File file: files){
-            models.add(new ClipsModel(FilenameUtils.removeExtension(file.getName())));
+            String filename = file.getName();
+            String strippedExtension = filename.substring(0, filename.lastIndexOf('.'));
+            models.add(new ClipsModel(strippedExtension));
         }
         adapter.notifyDataSetChanged();
     }
