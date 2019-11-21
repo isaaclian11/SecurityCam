@@ -1,6 +1,7 @@
 package com.isanga.securitycam.Fragments;
 
 
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Clips extends Fragment {
+public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRecyclerViewListener {
 
     private RecyclerView recyclerView;
     //Holds a list of clips
@@ -56,7 +57,7 @@ public class Clips extends Fragment {
         models = new ArrayList<>();
         manager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(manager);
-        adapter = new ClipsRecyclerViewAdapter(getContext(), models);
+        adapter = new ClipsRecyclerViewAdapter(getContext(), models, this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -73,9 +74,13 @@ public class Clips extends Fragment {
         for(File file: files){
             String filename = file.getName();
             String strippedExtension = filename.substring(0, filename.lastIndexOf('.'));
-            models.add(new ClipsModel(strippedExtension));
+            models.add(new ClipsModel(strippedExtension, file));
         }
         adapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onItemClick(int position) {
+
+    }
 }
