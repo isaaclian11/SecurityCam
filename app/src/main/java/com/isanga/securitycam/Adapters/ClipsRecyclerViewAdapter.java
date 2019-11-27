@@ -1,7 +1,10 @@
 package com.isanga.securitycam.Adapters;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,11 +43,11 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.clipTitle.setText(models.get(position).getTitle());
         File file = models.get(position).getThumbnail();
         Glide.with(context)
-                .asBitmap().load(Uri.fromFile(file))
-                .override(500, 500)
+               .load(Uri.fromFile(file))
+                .thumbnail(0.1f)
+                .centerCrop()
                 .into(holder.clipThumbnail);
     }
 
@@ -54,13 +57,11 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        TextView clipTitle;
         ImageView clipThumbnail;
         ClipsRecyclerViewListener listener;
 
         public ViewHolder(@NonNull View itemView, ClipsRecyclerViewListener listener) {
             super(itemView);
-            clipTitle = itemView.findViewById(R.id.clip_title);
             clipThumbnail = itemView.findViewById(R.id.clip_thumbnail);
             itemView.setOnClickListener(this);
             this.listener = listener;
@@ -75,5 +76,4 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
     public interface ClipsRecyclerViewListener{
         void onItemClick(int position);
     }
-
 }
