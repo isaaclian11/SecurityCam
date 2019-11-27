@@ -38,8 +38,6 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
     private RecyclerView.LayoutManager manager;
     private ClipsRecyclerViewAdapter adapter;
 
-    private static final int REQ_READ_STORAGE = 0;
-
     public Clips() {
         // Required empty public constructor
     }
@@ -50,8 +48,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_clips, container, false);
-        setUpRecyclerView(view);
-        loadThumbnails();
+        if(savedInstanceState==null) {
+            setUpRecyclerView(view);
+            loadThumbnails();
+        }
         return view;
 
     }
@@ -69,8 +69,13 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Handles click event on items from the list
+     * @param position position of the item being clicked
+     */
     @Override
     public void onItemClick(int position) {
+        //If video does not have a default player, prompt apps that support video playing
         Intent intent = new Intent(Intent.ACTION_VIEW);
         File file = models.get(position).getThumbnail();
         Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", file);
@@ -79,6 +84,9 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         startActivity(intent);
     }
 
+    /**
+     * Loads thumbnails from media folder
+     */
     private void loadThumbnails(){
         File folder = getContext().getExternalFilesDir("media");
         String path = folder.getAbsolutePath();
