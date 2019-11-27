@@ -3,12 +3,15 @@ package com.isanga.securitycam.Fragments;
 
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,7 +58,7 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_clips, container, false);
         setUpRecyclerView(view);
-        checkStoragePermission();
+        loadThumbnails();
         return view;
 
     }
@@ -75,32 +78,12 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     @Override
     public void onItemClick(int position) {
-
-    }
-
-    private void checkStoragePermission(){
-            if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED){
-                //Start cursor loader
-                loadThumbnails();
-            }
-            else{
-                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_READ_STORAGE);
-            }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case REQ_READ_STORAGE:
-                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                    //Call cursor loader
-                    loadThumbnails();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        File file = models.get(position).getThumbnail();
+        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", file);
+        intent.setDataAndType(uri, "video/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
     }
 
     private void loadThumbnails(){
