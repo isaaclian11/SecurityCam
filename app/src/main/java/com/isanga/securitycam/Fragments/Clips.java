@@ -78,6 +78,7 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         //If video does not have a default player, prompt apps that support video playing
         Intent intent = new Intent(Intent.ACTION_VIEW);
         File file = models.get(position).getThumbnail();
+        //FileProvider is need on sdk targets bigger than 23
         Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", file);
         intent.setDataAndType(uri, "video/*");
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -93,8 +94,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         Log.d(TAG, "loadThumbnails: " + path);
         if(folder.exists()){
             File[] videos = folder.listFiles();
-            for(File video: videos){
-                models.add(new ClipsModel(video.getName(), video));
+            if(videos!=null) {
+                for (File video : videos) {
+                    models.add(new ClipsModel(video.getName(), video));
+                }
             }
         }
         else{
