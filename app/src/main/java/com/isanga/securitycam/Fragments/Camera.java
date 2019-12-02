@@ -3,9 +3,11 @@ package com.isanga.securitycam.Fragments;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,12 +17,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.isanga.securitycam.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,6 +62,11 @@ public class Camera extends Fragment {
     /**
      *
      */
+    private SurfaceHolder mSurfaceHolder;
+
+    /**
+     *
+     */
     private SurfaceHolder.Callback mCallback = new SurfaceHolder.Callback() {
         boolean secondCall;
 
@@ -64,6 +75,7 @@ public class Camera extends Fragment {
             Log.d(TAG, "Surface created");
             mCameraId = null;
             secondCall = false;
+
         }
 
         @Override
@@ -75,7 +87,8 @@ public class Camera extends Fragment {
                     for (String cameraId : mCameraManager.getCameraIdList()) {
                         if (mCameraManager.getCameraCharacteristics(cameraId).get(mCameraManager.getCameraCharacteristics(cameraId).LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK) {
                             mCameraId = cameraId;
-                            surfaceHolder.setFixedSize(400, 400);
+                            SurfaceHolder holder = mSurfaceView.getHolder();
+                            holder.setFixedSize(640, 480);
                             Log.d(TAG, "Found back facing camera");
                             return;
                         }
@@ -87,6 +100,7 @@ public class Camera extends Fragment {
                 try {
                     Log.d(TAG, "Trying to open camera");
                     mCameraManager.openCamera(mCameraId, mStateCallback, mHandler);
+
                     Log.d(TAG, "Camera was opened");
                 } catch (CameraAccessException e) {
                     Log.d(TAG, "Could not find or access camera");
@@ -111,6 +125,13 @@ public class Camera extends Fragment {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             Log.d(TAG, "Camera onOpened");
+            List<Surface> surfaceList = new ArrayList<>();
+            surfaceList.add(mSurfaceView.getHolder().getSurface());
+            try {
+                cameraDevice.createCaptureSession(surfaceList, mCaptureSession, mHandler);
+            } catch(CameraAccessException e) {
+
+            }
             mCameraDevice = cameraDevice;
         }
 
@@ -121,6 +142,30 @@ public class Camera extends Fragment {
 
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int i) {
+
+        }
+    };
+
+    CameraCaptureSession mCameraCaptureSession;
+
+    private CameraCaptureSession.StateCallback mCaptureSession = new CameraCaptureSession.StateCallback() {
+        @Override
+        public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+            mCameraCaptureSession = cameraCaptureSession;
+            if(mSurfaceHolder != null) {
+                try {
+                    CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_PREVIEW);
+                    captureRequest.addTarget(mSurfaceHolder.getSurface());
+                    captureRequest.build();
+                    cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null);
+                } catch(CameraAccessException e) {
+
+                }
+            }
+        }
+
+        @Override
+        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
 
         }
     };
@@ -136,12 +181,11 @@ public class Camera extends Fragment {
         mHandler = new Handler(Looper.getMainLooper());
         mCameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
 
-        View layout = getLayoutInflater().inflate(R.layout.fragment_camera, null);
+        View layout = inflater.inflate(R.layout.fragment_camera, container, false);
         mSurfaceView = layout.findViewById(R.id.camera_surface_view);
         mSurfaceView.getHolder().addCallback(mCallback);
+        mSurfaceHolder = mSurfaceView.getHolder();
 
-        // Inflate the layout for this fragment
-//        return inflater.inflate(R.layout.fragment_camera, container, false);
         return layout;
     }
 
