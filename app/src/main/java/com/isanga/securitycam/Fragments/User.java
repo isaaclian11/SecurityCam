@@ -96,7 +96,6 @@ public class User extends Fragment {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 startAuth(account);
             } catch (ApiException e) {
-                Log.w(TAG, "Google sign in failed", e);
                 // TODO
             }
         }
@@ -109,11 +108,10 @@ public class User extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateName(user);
                         } else {
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            //TODO
                         }
                     }
                 });
