@@ -11,5 +11,9 @@
     <string name="hello_user_fragment">Hello User Fragment</string>
     <string name="hello_home_fragment">Hello Home Fragment</string>
 
+    <string name="web_client_id">152764582545-rhhgsf7nf1fp9ieptjq51cvo5oot4p0d.apps.googleusercontent.com</string>
+    <string name="user_signin">Sign In</string>
+    <string name="user_signout">Sign Out</string>
+    <string name="user_sync">Sync Files</string>
 
 </resources>
