@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "152764582545-jethj179b4c3b991tggk1b2ogq0qagf2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.isanga.securitycam",
+            "certificate_hash": "8678c1ba23f408b62c6f4744fc7c99c10712dd40"
+          }
+        },
+        {
           "client_id": "152764582545-4qfuhv353vfcc1de8bocoqn7de6jpnsp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

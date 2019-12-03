@@ -18,7 +18,8 @@
         android:text="@string/user_signin"
         android:id="@+id/user_signinBtn"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/user_id"/>
+        android:layout_below="@id/user_id"
+        android:layout_marginTop="240dp"/>
 
     <Button
         android:layout_width="wrap_content"
