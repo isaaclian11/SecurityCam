@@ -160,9 +160,14 @@ public class User extends Fragment {
     }
 
     private void signout(){
-        FirebaseAuth.getInstance().signOut();
+        mAuth.signOut();
         userid = null;
-        updateName(null);
+        signInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                updateName(null);
+            }
+        });
     }
 
     private void syncFiles(){
@@ -189,6 +194,9 @@ public class User extends Fragment {
                             }
                         });
                     }
+                }
+                else{
+                    Toast.makeText(getContext(), "Folder empty", Toast.LENGTH_LONG).show();
                 }
             } else {
                 folder.mkdirs();
