@@ -5,11 +5,36 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.User">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_user_fragment"
-        android:layout_centerInParent="true"/>
+        android:id="@+id/user_id"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_signin"
+        android:id="@+id/user_signinBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/user_id"
+        android:layout_marginTop="240dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_signout"
+        android:id="@+id/user_signoutBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/user_signinBtn" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_sync"
+        android:id="@+id/user_syncBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/user_signoutBtn"/>
 
 </RelativeLayout>
