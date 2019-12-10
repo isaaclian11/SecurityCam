@@ -8,6 +8,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,9 +23,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.isanga.securitycam.R;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +68,21 @@ public class Camera extends Fragment {
      * The surface view holder.
      */
     private SurfaceHolder mSurfaceHolder;
+
+    /**
+     * Record button.
+     */
+    private Button record;
+
+    /**
+     * Stop recording button.
+     */
+    private Button stop;
+
+    /**
+     *
+     */
+    MediaRecorder mediaRecorder;
 
     /**
      * Implement the logic for surface holder callbacks.
@@ -198,11 +217,37 @@ public class Camera extends Fragment {
         Log.d(TAG, "onCreateView");
         mHandler = new Handler();
         mCameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
-
         View layout = inflater.inflate(R.layout.fragment_camera, container, false);
         mSurfaceView = layout.findViewById(R.id.camera_surface_view);
         mSurfaceView.getHolder().addCallback(mCallback);
         mSurfaceHolder = mSurfaceView.getHolder();
+        mediaRecorder = new MediaRecorder();
+        record = layout.findViewById(R.id.record);
+        record.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+                File folder = getContext().getExternalFilesDir("media");
+                mediaRecorder.setOutputFile(folder);
+                try {
+                    mediaRecorder.prepare();
+                } catch(IOException e) {
+                    Log.d(TAG, "Media recorder prepare failed with IOException");
+                }
+                mediaRecorder.start();
+            }
+        });
+        stop = layout.findViewById(R.id.stop);
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaRecorder.stop();
+                mediaRecorder.reset();
+                mediaRecorder.release();
+            }
+        });
 
         return layout;
     }
