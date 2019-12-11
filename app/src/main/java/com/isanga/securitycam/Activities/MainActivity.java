@@ -9,6 +9,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .replace(R.id.fragment_container, new Home())
                     .commit();
         }
+
+
     }
 
     //Opens a fragment corresponding to the menu item
@@ -77,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new Camera())
                         .commit();
+                break;
+
+            case R.id.gesture_menu_viewer:
+                startActivity(new Intent(this, ViewerActivity.class));
                 break;
             case R.id.gesture_menu_clips:
                 getSupportFragmentManager().beginTransaction()
