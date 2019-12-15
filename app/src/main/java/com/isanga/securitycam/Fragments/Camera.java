@@ -1,17 +1,23 @@
 package com.isanga.securitycam.Fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -37,6 +43,10 @@ import java.util.List;
  */
 public class Camera extends Fragment {
     private static final String TAG = "CameraFragment";
+
+    private static int MY_PERMISSIONS_REQUEST_CAMERA;
+    private static int MY_PERMISSIONS_REQUEST_AUDIO;
+    private static int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE;
 
     /**
      * The camera manager. Used to find the camera.
@@ -70,6 +80,11 @@ public class Camera extends Fragment {
     private SurfaceHolder mSurfaceHolder;
 
     /**
+     * Image reader to access image data rendered to surface.
+     */
+    private ImageReader imageReader;
+
+    /**
      * Record button.
      */
     private Button record;
@@ -80,7 +95,7 @@ public class Camera extends Fragment {
     private Button stop;
 
     /**
-     *
+     * Does not work on emulator. Used to record video and audio.
      */
     MediaRecorder mediaRecorder;
 
@@ -103,15 +118,15 @@ public class Camera extends Fragment {
             Log.d(TAG, "surfaceChanged");
 
             //Find the back facing camera.
-            if(mCameraId == null) {
+            if (mCameraId == null) {
                 try {
                     for (String cameraId : mCameraManager.getCameraIdList()) {
                         if (mCameraManager.getCameraCharacteristics(cameraId).get(mCameraManager.getCameraCharacteristics(cameraId).LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK) {
                             mCameraId = cameraId;
-                            SurfaceHolder holder = mSurfaceView.getHolder();
                             DisplayMetrics metrics = new DisplayMetrics();
-                            ((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                            holder.setFixedSize(metrics.heightPixels, metrics.widthPixels);
+                            ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                            mSurfaceView.getHolder().setFixedSize(metrics.heightPixels, metrics.widthPixels);
+                            imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, ImageFormat.JPEG, 1);
                             Log.d(TAG, "Found back facing camera");
                             return;
                         }
@@ -119,7 +134,7 @@ public class Camera extends Fragment {
                 } catch (CameraAccessException e) {
                     Log.d(TAG, "Could not find or access the camera");
                 }
-            } else if(secondCall == false) {
+            } else if (secondCall == false) {
                 try {
                     mCameraManager.openCamera(mCameraId, mStateCallback, mHandler);
                     Log.d(TAG, "Camera was opened");
@@ -128,6 +143,7 @@ public class Camera extends Fragment {
                 } catch (SecurityException e) {
                     Log.d(TAG, "Found some security exception while opening camera");
                 }
+                
                 secondCall = true;
             }
         }
@@ -146,13 +162,38 @@ public class Camera extends Fragment {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             Log.d(TAG, "Camera onOpened");
+
+            setMediaRecorder();
+            File folder = new File(getContext().getExternalFilesDir(null), "media");
+            if (!folder.exists()) {
+                folder.mkdir();
+            } else if (!folder.isDirectory() && folder.canWrite()) {
+                folder.delete();
+                folder.mkdir();
+            }
+            Log.d(TAG, "" + folder);
+            try {
+                File name = File.createTempFile("Recording_", ".mp4", folder);
+                mediaRecorder.setOutputFile(name.getAbsolutePath());
+                Log.d(TAG, "" + name);
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to create video file name: " + e);
+            }
+            try {
+                mediaRecorder.prepare();
+            } catch (IOException e) {
+                Log.e(TAG, "Media recorder prepare failed with " + e);
+            }
+
             List<Surface> surfaceList = new ArrayList<>();
             surfaceList.add(mSurfaceView.getHolder().getSurface());
+            surfaceList.add(mediaRecorder.getSurface());
+            surfaceList.add(imageReader.getSurface());
             try {
                 cameraDevice.createCaptureSession(surfaceList, mCaptureSession, mHandler);
-            } catch(CameraAccessException e) {
-
+            } catch (CameraAccessException e) {
             }
+
             mCameraDevice = cameraDevice;
         }
 
@@ -179,17 +220,19 @@ public class Camera extends Fragment {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
             Log.d(TAG, "Camera configured");
-            mCameraCaptureSession = cameraCaptureSession;
-            if(mSurfaceHolder != null) {
+            if (mSurfaceHolder != null) {
                 try {
-                    CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_PREVIEW);
+                    CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_RECORD);
                     captureRequest.addTarget(mSurfaceHolder.getSurface());
+                    captureRequest.addTarget(mediaRecorder.getSurface());
                     captureRequest.build();
                     cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null);
-                } catch(CameraAccessException e) {
+                } catch (CameraAccessException e) {
 
                 }
             }
+
+            mCameraCaptureSession = cameraCaptureSession;
         }
 
         @Override
@@ -206,6 +249,7 @@ public class Camera extends Fragment {
 
     /**
      * {@inheritDoc}
+     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -215,37 +259,62 @@ public class Camera extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
+        checkPermissions();
         mHandler = new Handler();
+        mediaRecorder = new MediaRecorder();
         mCameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
         View layout = inflater.inflate(R.layout.fragment_camera, container, false);
-        mSurfaceView = layout.findViewById(R.id.camera_surface_view);
-        mSurfaceView.getHolder().addCallback(mCallback);
-        mSurfaceHolder = mSurfaceView.getHolder();
-        mediaRecorder = new MediaRecorder();
+        setSurface(layout);
+        //start recording
         record = layout.findViewById(R.id.record);
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-                File folder = getContext().getExternalFilesDir("media");
-                mediaRecorder.setOutputFile(folder);
-                try {
-                    mediaRecorder.prepare();
-                } catch(IOException e) {
-                    Log.d(TAG, "Media recorder prepare failed with IOException");
-                }
+                Log.d(TAG, "Starting media recorder");
                 mediaRecorder.start();
             }
         });
+        //stop recording
         stop = layout.findViewById(R.id.stop);
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "Stopping media recorder");
+
+                try {
+                    mCameraCaptureSession.stopRepeating();
+                    mCameraCaptureSession.abortCaptures();
+                } catch (CameraAccessException e) {
+                    Log.e(TAG, "Can't access camera to stop camera capture session: " + e);
+                }
+
                 mediaRecorder.stop();
-                mediaRecorder.reset();
-                mediaRecorder.release();
+
+                mCaptureSession = new CameraCaptureSession.StateCallback() {
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        mCameraCaptureSession = cameraCaptureSession;
+                        if (mSurfaceHolder != null) {
+                            try {
+                                CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_RECORD);
+                                captureRequest.addTarget(mSurfaceHolder.getSurface());
+                                captureRequest.addTarget(mediaRecorder.getSurface());
+                                captureRequest.build();
+                                cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null);
+                            } catch (CameraAccessException e) {
+                                Log.e(TAG, "Unable to access camera for camera capture session after stop: " + e);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        Log.d(TAG, "Configure for camera capture session failed after stop");
+                    }
+                };
+                //reset fragment
+                Camera cameraFragment = (Camera) getFragmentManager().findFragmentById(R.id.fragment_container);
+                getFragmentManager().beginTransaction().detach(cameraFragment).attach(cameraFragment).commit();
             }
         });
 
@@ -260,10 +329,80 @@ public class Camera extends Fragment {
         super.onPause();
 
         Log.d(TAG, "Camera closed");
-        if(mCameraDevice != null) {
+        if (mCameraDevice != null) {
             mCameraDevice.close();
             mCameraDevice = null;
         }
     }
 
+    /**
+     * Setup the surface for preview and recording.
+     * @param layout
+     */
+    private void setSurface(View layout) {
+        mSurfaceView = layout.findViewById(R.id.camera_surface_view);
+        mSurfaceView.getHolder().addCallback(mCallback);
+        mSurfaceHolder = mSurfaceView.getHolder();
+    }
+
+    /**
+     * Setup media recorder in the order from Camera documentation.
+     */
+    private void setMediaRecorder() {
+        //they suggest to use this for API level 8 or higher but we will set them manually
+        //mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        mediaRecorder.setVideoFrameRate(30);
+    }
+
+    /**
+     * Used to make sure the app has the required permissions.
+     */
+    private void checkPermissions() {
+        //Camera permissions
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.CAMERA)) {
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.CAMERA},
+                        MY_PERMISSIONS_REQUEST_CAMERA);
+            }
+        }
+
+        //Audio permissions
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.RECORD_AUDIO)) {
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        MY_PERMISSIONS_REQUEST_AUDIO);
+            }
+        }
+
+        //External storage permissions
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+            }
+        }
+    }
 }
