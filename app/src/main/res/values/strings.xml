@@ -16,4 +16,7 @@
     <string name="user_signout">Sign Out</string>
     <string name="user_sync">Sync Files</string>
 
+    <string name="clip_share">Share</string>
+    <string name="clip_delete">Delete</string>
+
 </resources>

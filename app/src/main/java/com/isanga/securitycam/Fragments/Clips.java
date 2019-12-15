@@ -3,6 +3,7 @@ package com.isanga.securitycam.Fragments;
 
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -14,8 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.isanga.securitycam.Adapters.ClipsRecyclerViewAdapter;
 import com.isanga.securitycam.Models.ClipsModel;
@@ -38,6 +41,8 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
     private RecyclerView.LayoutManager manager;
     private ClipsRecyclerViewAdapter adapter;
 
+    private File folder;
+
     public Clips() {
         // Required empty public constructor
     }
@@ -48,10 +53,12 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_clips, container, false);
+        folder = getContext().getExternalFilesDir("media");
         if(savedInstanceState==null) {
             setUpRecyclerView(view);
             loadThumbnails();
         }
+        registerForContextMenu(recyclerView);
         return view;
 
     }
@@ -85,17 +92,50 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         startActivity(intent);
     }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.clip_delete:
+                deleteClip(item.getGroupId());
+            case R.id.clip_share:
+                shareClip(item.getGroupId());
+            default:
+                return super.onContextItemSelected(item);
+        }
+
+    }
+
+    private void deleteClip(int id){
+        String path = folder.getAbsolutePath() + "/" + models.get(id).getTitle();
+        File video = new File(path);
+        video.delete();
+        models.remove(id);
+        adapter.notifyDataSetChanged();
+        Log.d(TAG, "deleteClip: " + path);
+    }
+
+    private void shareClip(int id){
+        String path = folder.getAbsolutePath() + "/" + models.get(id).getTitle();
+        File video = new File(path);
+        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", video);
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(intent, "send"));
+    }
+
     /**
      * Loads thumbnails from media folder
      */
     private void loadThumbnails(){
-        File folder = getContext().getExternalFilesDir("media");
         String path = folder.getAbsolutePath();
         Log.d(TAG, "loadThumbnails: " + path);
         if(folder.exists()){
             File[] videos = folder.listFiles();
             if(videos!=null) {
                 for (File video : videos) {
+                    Log.d(TAG, "currentThumbnail: " + video.getAbsolutePath());
                     models.add(new ClipsModel(video.getName(), video));
                 }
             }
