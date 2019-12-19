@@ -99,6 +99,16 @@ public class Camera extends Fragment {
     MediaRecorder mediaRecorder;
 
     /**
+     * Used to remove the temporary file.
+     */
+    File lastFile;
+
+    /**
+     * Used to determine whether or not to remove the file.
+     */
+    boolean recorded;
+
+    /**
      * Implement the logic for surface holder callbacks.
      */
     private SurfaceHolder.Callback mCallback = new SurfaceHolder.Callback() {
@@ -114,6 +124,7 @@ public class Camera extends Fragment {
             Log.d(TAG, "Surface created");
             mCameraId = null;
             secondCall = false;
+            recorded = false;
         }
 
         /**
@@ -295,6 +306,13 @@ public class Camera extends Fragment {
     public void onPause() {
         super.onPause();
 
+        if(!recorded) {
+            boolean deleted = lastFile.delete();
+            if(deleted) {
+                Log.d(TAG, lastFile + " was deleted");
+            }
+        }
+
         Log.d(TAG, "Camera closed");
         if (mCameraDevice != null) {
             mCameraDevice.close();
@@ -337,6 +355,7 @@ public class Camera extends Fragment {
             //we may want to change this so they clips are in order
             String time = new SimpleDateFormat("yyMMdd_HHmmss").format(new Date());
             File name = File.createTempFile(time, "", folder);
+            lastFile = name;
             mediaRecorder.setOutputFile(name.getAbsolutePath());
             Log.d(TAG, "" + name);
         } catch (IOException e) {
@@ -366,6 +385,8 @@ public class Camera extends Fragment {
         @Override
         public void onClick(View view) {
             Log.d(TAG, "Stopping media recorder");
+
+            recorded = true;
 
             try {
                 mCameraCaptureSession.stopRepeating();
