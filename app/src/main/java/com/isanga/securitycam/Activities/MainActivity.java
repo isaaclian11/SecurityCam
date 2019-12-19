@@ -81,9 +81,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .replace(R.id.fragment_container, new Camera())
                         .commit();
                 break;
-
             case R.id.gesture_menu_viewer:
                 startActivity(new Intent(this, ViewerActivity.class));
+                break;
+            case R.id.gesture_menu_streamer:
+                startActivity(new Intent(this, StreamerActivity.class));
                 break;
             case R.id.gesture_menu_clips:
                 getSupportFragmentManager().beginTransaction()
