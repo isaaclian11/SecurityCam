@@ -143,10 +143,13 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         switch (item.getItemId()){
             case R.id.clip_delete:
                 deleteClip(item.getGroupId());
+                return true;
             case R.id.clip_share:
                 shareClip(item.getGroupId());
+                return true;
             case R.id.clip_edit:
                 editClip(item.getGroupId());
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
