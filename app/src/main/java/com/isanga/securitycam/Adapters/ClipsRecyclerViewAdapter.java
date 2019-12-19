@@ -2,6 +2,7 @@ package com.isanga.securitycam.Adapters;
 
 import android.content.Context;
 import android.net.Uri;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,8 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
         return models.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            View.OnCreateContextMenuListener {
         ImageView clipThumbnail;
         ClipsRecyclerViewListener listener;
 
@@ -61,12 +63,24 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
             clipThumbnail = itemView.findViewById(R.id.clip_thumbnail);
             itemView.setOnClickListener(this);
             this.listener = listener;
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         @Override
         public void onClick(View v) {
             listener.onItemClick(getAdapterPosition());
         }
+
+
+
+        @Override
+        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.add(this.getAdapterPosition(), R.id.clip_delete, 0, R.string.clip_delete);
+            contextMenu.add(this.getAdapterPosition(), R.id.clip_share, 0, R.string.clip_share);
+            contextMenu.add(this.getAdapterPosition(), R.id.clip_edit, 0, "Edit");
+        }
+
+
     }
 
     public interface ClipsRecyclerViewListener{

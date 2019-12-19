@@ -8,7 +8,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +30,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -47,16 +44,25 @@ import java.io.File;
  */
 public class User extends Fragment {
 
+    /**
+     * Google authentication handlers
+     */
     private GoogleSignInClient signInClient;
     private FirebaseAuth mAuth;
 
     private static final int RC_SIGN_IN = 9001;
 
+    /**
+     *Buttons and TextView
+     */
     private TextView username;
     private Button signinBtn;
     private Button signoutBtn;
     private Button syncBtn;
 
+    /**
+     * Current userID
+     */
     private String userid;
 
     public User() {
@@ -83,18 +89,29 @@ public class User extends Fragment {
         signoutBtn = view.findViewById(R.id.user_signoutBtn);
         syncBtn = view.findViewById(R.id.user_syncBtn);
 
+        /**
+         * Handles sign in on click
+         */
         signinBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signin();
             }
         });
+
+        /**
+         * Handles sign out on click
+         */
         signoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signout();
             }
         });
+
+        /**
+         * Handles sync on click
+         */
         syncBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,6 +123,12 @@ public class User extends Fragment {
         return view;
     }
 
+    /**
+     * Brings up the sign in page for Google accounts
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -122,6 +145,10 @@ public class User extends Fragment {
         }
     }
 
+    /**
+     * Starts authenticating user using GoogleSignInAccount
+     * @param account account to sign in with
+     */
     private void startAuth(GoogleSignInAccount account) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -139,6 +166,10 @@ public class User extends Fragment {
                 });
     }
 
+    /**
+     * Updates TextView to display current user's name
+     * @param user
+     */
     private void updateName(FirebaseUser user){
         if(user!=null) {
             String name = user.getDisplayName();
@@ -149,16 +180,25 @@ public class User extends Fragment {
         }
     }
 
+    /**
+     * Checks if anyone is currently logged in and updates name
+     */
     private void checkLoginState(){
         FirebaseUser user = mAuth.getCurrentUser();
         updateName(user);
     }
 
+    /**
+     * Starts an intent for google authentication
+     */
     private void signin(){
         Intent intent = signInClient.getSignInIntent();
         startActivityForResult(intent, RC_SIGN_IN);
     }
 
+    /**
+     * Signs out current user and sets TextView of name empty
+     */
     private void signout(){
         mAuth.signOut();
         userid = null;
@@ -170,6 +210,9 @@ public class User extends Fragment {
         });
     }
 
+    /**
+     * Uploads all of current user's files to Firebase Storage
+     */
     private void syncFiles(){
         if(userid!=null) {
             File folder = getContext().getExternalFilesDir("media");

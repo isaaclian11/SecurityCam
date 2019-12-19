@@ -32,5 +32,8 @@
     <string name="username_hint">Leave empty if not needed</string>
     <string name="default_bitrate">0 kbps</string>
     <string name="default_stream">rtsp://wowzaipaddress:1935/live/test.stream</string>
+    <string name="clip_share">Share</string>
+    <string name="clip_delete">Delete</string>
+    <string name="clip_edit">Edit</string>
 
 </resources>

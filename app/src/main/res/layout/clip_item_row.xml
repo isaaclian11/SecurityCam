@@ -4,10 +4,9 @@
     android:layout_height="120dp">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:id="@+id/clip_thumbnail"
-        android:layout_marginStart="16dp"
-        android:layout_centerVertical="true"/>
+        android:layout_centerInParent="true"/>
 
 </RelativeLayout>
