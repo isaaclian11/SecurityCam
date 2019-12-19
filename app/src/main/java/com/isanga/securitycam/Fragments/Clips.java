@@ -221,7 +221,8 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
             if(videos!=null) {
                 for (File video : videos) {
                     Log.d(TAG, "currentThumbnail: " + video.getAbsolutePath());
-                    models.add(new ClipsModel(video.getName(), video));
+                    if(video.length()!=0)
+                        models.add(new ClipsModel(video.getName(), video));
                 }
             }
         }
