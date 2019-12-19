@@ -45,14 +45,20 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
      */
     private ArrayList<ClipsModel> models;
     /**
-     * Tools needed for recyclerview
+     * Manager for recyclerview
      */
     private RecyclerView.LayoutManager manager;
+    /**
+     * Adapter for recyclerview
+     */
     private ClipsRecyclerViewAdapter adapter;
     /**
      * Popup dialog to edit title of clips
      */
     private AlertDialog editTitle;
+    /**
+     * EditText for AlertDialog
+     */
     private EditText titleEditor;
     /**
      * Current id of clip title being edited
@@ -71,17 +77,25 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        /**
+         * Inflates the layout for this fragment
+         */
         View view = inflater.inflate(R.layout.fragment_clips, container, false);
-        //Get the clips folder
+        /**
+         * Get the clips folder
+         */
         folder = getContext().getExternalFilesDir("media");
-        //Initializes private variables
+        /**
+         * Initializes private variables
+         */
         editTitle = new AlertDialog.Builder(getContext()).create();
         titleEditor = new EditText(getContext());
         editTitle.setTitle("Edit title");
         editTitle.setView(titleEditor);
 
-        //Handles editing titles when SAVE is clicked
+        /**
+         * Handles editing titles when SAVE is clicked
+         */
         editTitle.setButton(DialogInterface.BUTTON_POSITIVE, "SAVE", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -98,7 +112,9 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
             setUpRecyclerView(view);
             loadThumbnails();
         }
-        //Need to register recyclerview for ContextMenu to work
+        /**
+         * Need to register recyclerview for ContextMenu to work
+         */
         registerForContextMenu(recyclerView);
         return view;
 

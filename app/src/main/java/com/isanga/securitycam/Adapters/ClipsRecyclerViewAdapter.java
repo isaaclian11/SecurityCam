@@ -19,9 +19,21 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecyclerViewAdapter.ViewHolder> {
+    /**
+     * List of ClipsModel
+     */
     private ArrayList<ClipsModel> models;
+    /**
+     * LayoutInflater for an item in a recyclerview
+     */
     private LayoutInflater layoutInflater;
+    /**
+     * Clicks listener
+     */
     private ClipsRecyclerViewListener listener;
+    /**
+     * Context
+     */
     private Context context;
 
     public ClipsRecyclerViewAdapter(Context context, ArrayList<ClipsModel> list, ClipsRecyclerViewListener listener){
@@ -31,6 +43,12 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
         this.listener = listener;
     }
 
+    /**
+     * Initializes a row
+     * @param parent
+     * @param viewType
+     * @return
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,6 +56,11 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
         return new ViewHolder(view, listener);
     }
 
+    /**
+     * Updates list with the correct thumbnails
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         File file = models.get(position).getThumbnail();
@@ -48,14 +71,27 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
                 .into(holder.clipThumbnail);
     }
 
+    /**
+     * Size of items in list
+     * @return
+     */
     @Override
     public int getItemCount() {
         return models.size();
     }
 
+    /**
+     * Helper class for adapter
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
             View.OnCreateContextMenuListener {
+        /**
+         * Thumbnail
+         */
         ImageView clipThumbnail;
+        /**
+         * On click item listener
+         */
         ClipsRecyclerViewListener listener;
 
         public ViewHolder(@NonNull View itemView, ClipsRecyclerViewListener listener) {
@@ -66,6 +102,10 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
             itemView.setOnCreateContextMenuListener(this);
         }
 
+        /**
+         * Calls on click and passes in clicked item's position
+         * @param v
+         */
         @Override
         public void onClick(View v) {
             listener.onItemClick(getAdapterPosition());
@@ -83,6 +123,9 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
 
     }
 
+    /**
+     * Interface for on clicks
+     */
     public interface ClipsRecyclerViewListener{
         void onItemClick(int position);
     }
