@@ -2,15 +2,18 @@ package com.isanga.securitycam.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -18,14 +21,14 @@ import android.widget.VideoView;
 import com.isanga.securitycam.R;
 
 
-public class ViewerActivity extends AppCompatActivity
-{
+public class ViewerActivity extends AppCompatActivity {
 
     public final static String TAG = "ViewerActivity";
 
-    private VideoView videoView;
-    private EditText ipText;
-    private Uri uri;
+    private VideoView mVideoView;
+    private EditText mIpText;
+    private Uri mUri;
+    private ImageButton mButtonHome;
 
 
     /**
@@ -36,6 +39,7 @@ public class ViewerActivity extends AppCompatActivity
      * Set the path to /test.ts and port to 8554
      * Configure profile to be MPEG-TS, H-264, and MPEG 4 Audio AAC
      * Click stream
+     *
      * @param savedInstanceState bundle containing init info
      */
     @Override
@@ -45,13 +49,14 @@ public class ViewerActivity extends AppCompatActivity
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_viewer);
 
-        videoView = (VideoView) findViewById(R.id.videoView);
-        uri = Uri.parse(getString(R.string.enter_ip));
-        updateVideo(uri);
+        mButtonHome = findViewById(R.id.homeButtonS);
+        mVideoView = findViewById(R.id.videoView);
+        mUri = Uri.parse(getString(R.string.enter_ip));
+        updateVideo(mUri);
 
-        ipText = (EditText) findViewById(R.id.editTextIP);
+        mIpText =  findViewById(R.id.editTextIP);
 
-        ipText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mIpText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i == EditorInfo.IME_ACTION_DONE) {
@@ -66,6 +71,12 @@ public class ViewerActivity extends AppCompatActivity
                 return false;
             }
         });
+        mButtonHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            }
+        });
     }
 
     /**
@@ -74,35 +85,35 @@ public class ViewerActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        videoView.suspend();
+        mVideoView.suspend();
     }
 
     /**
-     * queue up a new uri to stream
+     * queue up a new mUri to stream
+     *
      * @param uri
      */
-    private void updateVideo(Uri uri){
-        this.uri = uri;
-        videoView.stopPlayback();
-        videoView.suspend();
-        videoView.setVideoURI(uri);
-        videoView.start();
+    private void updateVideo(Uri uri) {
+        this.mUri = uri;
+        mVideoView.stopPlayback();
+        mVideoView.suspend();
+        mVideoView.setVideoURI(uri);
+        mVideoView.start();
         resizeVideo();
     }
 
     /**
      * make the drawn surface aspect look correct
      */
-    private void resizeVideo(){
+    private void resizeVideo() {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) videoView.getLayoutParams();
+        android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) mVideoView.getLayoutParams();
         params.width = metrics.widthPixels;
         params.height = metrics.heightPixels;
         params.leftMargin = 0;
-        videoView.setLayoutParams(params);
+        mVideoView.setLayoutParams(params);
     }
-
 
 
 }

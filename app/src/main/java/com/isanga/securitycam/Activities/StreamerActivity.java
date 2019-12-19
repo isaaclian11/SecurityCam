@@ -2,7 +2,9 @@ package com.isanga.securitycam.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
 import net.majorkernelpanic.streaming.audio.AudioQuality;
@@ -18,20 +20,24 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+
 import com.isanga.securitycam.R;
 
 public class StreamerActivity extends AppCompatActivity
-        implements Session.Callback, SurfaceHolder.Callback{
+        implements Session.Callback, SurfaceHolder.Callback {
 
     private String TAG = "StreamerActivity";
 
     private Session mSession;
     private Button mBtnStartStop, mButtonSwap;
+    private ImageButton mButtonHome;
     private EditText mDestText;
     private SurfaceView mSurfaceView;
 
     /**
      * handle creation of activity, session, and surface
+     *
      * @param savedInstanceState
      */
     @Override
@@ -41,9 +47,10 @@ public class StreamerActivity extends AppCompatActivity
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        mBtnStartStop =  findViewById(R.id.btnStartStop);
-        mButtonSwap =  findViewById(R.id.btnSwap);
-        mDestText =  findViewById(R.id.destText);
+        mBtnStartStop = findViewById(R.id.btnStartStop);
+        mButtonHome = findViewById(R.id.homeButtonS);
+        mButtonSwap = findViewById(R.id.btnSwap);
+        mDestText = findViewById(R.id.destText);
         mSurfaceView = findViewById(R.id.surface);
 
         mSession = SessionBuilder.getInstance()
@@ -54,7 +61,7 @@ public class StreamerActivity extends AppCompatActivity
                 .setAudioEncoder(SessionBuilder.AUDIO_AAC)
                 .setAudioQuality(new AudioQuality(16000, 32000))
                 .setVideoEncoder(SessionBuilder.VIDEO_H264)
-                .setVideoQuality(new VideoQuality(320,240,20,512000))
+                .setVideoQuality(new VideoQuality(320, 240, 20, 512000))
                 .build();
 
         mSurfaceView.getHolder().addCallback(this);
@@ -75,6 +82,12 @@ public class StreamerActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 mSession.switchCamera();
+            }
+        });
+        mButtonHome.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
             }
         });
     }
@@ -120,7 +133,7 @@ public class StreamerActivity extends AppCompatActivity
         // that you can send to the receiver of the stream.
         // For example, to receive the stream in VLC, store the session description in a .sdp file
         // and open it with VLC while streming.
-        Log.d(TAG, "Create a file.sdp with the following: \n" +  mSession.getSessionDescription());
+        Log.d(TAG, "Create a file.sdp with the following: \n" + mSession.getSessionDescription());
         mSession.start();
     }
 
@@ -129,7 +142,7 @@ public class StreamerActivity extends AppCompatActivity
      */
     @Override
     public void onSessionStarted() {
-        Log.d(TAG,"Streaming session started.");
+        Log.d(TAG, "Streaming session started.");
         stopStyle();
         mBtnStartStop.setEnabled(true);
     }
@@ -139,13 +152,14 @@ public class StreamerActivity extends AppCompatActivity
      */
     @Override
     public void onSessionStopped() {
-        Log.d(TAG,"onSessionStopped: ");
+        Log.d(TAG, "onSessionStopped: ");
         startStyle();
         mBtnStartStop.setEnabled(true);
     }
 
     /**
      * Triggered by in progress streams from libstreaming session
+     *
      * @param bitrate the rate of video streaming
      */
     @Override
@@ -156,9 +170,10 @@ public class StreamerActivity extends AppCompatActivity
 
     /**
      * Triggered by errors in libstreaming session
-     * @param message error code
+     *
+     * @param message    error code
      * @param streamType audio or video error
-     * @param e the exception raised
+     * @param e          the exception raised
      */
     @Override
     public void onSessionError(int message, int streamType, Exception e) {
@@ -167,9 +182,10 @@ public class StreamerActivity extends AppCompatActivity
 
     /**
      * resize surface to match screen size
+     *
      * @param holder surface changed
      * @param format unused
-     * @param width unused
+     * @param width  unused
      * @param height unused
      */
     @Override
@@ -182,6 +198,7 @@ public class StreamerActivity extends AppCompatActivity
 
     /**
      * Triggered by surface creation, preview session since
+     *
      * @param holder the surface that was created
      */
     @Override
@@ -191,6 +208,7 @@ public class StreamerActivity extends AppCompatActivity
 
     /**
      * Triggered by surface destruction, end session since it wont be displayed
+     *
      * @param holder the surface that was destroyed
      */
     @Override
@@ -201,7 +219,7 @@ public class StreamerActivity extends AppCompatActivity
     /**
      * stylize start button
      */
-    private void startStyle(){
+    private void startStyle() {
         mBtnStartStop.setBackgroundColor(0xFFB9F6CA);
         mBtnStartStop.setText(R.string.start);
     }
@@ -209,7 +227,7 @@ public class StreamerActivity extends AppCompatActivity
     /**
      * stylize stop button
      */
-    private void stopStyle(){
+    private void stopStyle() {
         mBtnStartStop.setBackgroundColor(0xFFFF8A80);
         mBtnStartStop.setText(R.string.stop);
     }
