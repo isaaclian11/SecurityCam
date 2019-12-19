@@ -36,19 +36,31 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
  */
 public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRecyclerViewListener {
 
-    //List to preview clips
+    /**
+     * List to preview clips
+     */
     private RecyclerView recyclerView;
-    //Holds a list of clips
+    /**
+     * Holds a list of clips
+     */
     private ArrayList<ClipsModel> models;
-    //Tools needed for recyclerview
+    /**
+     * Tools needed for recyclerview
+     */
     private RecyclerView.LayoutManager manager;
     private ClipsRecyclerViewAdapter adapter;
-    //Popup dialog to edit title of clips
+    /**
+     * Popup dialog to edit title of clips
+     */
     private AlertDialog editTitle;
     private EditText titleEditor;
-    //Current id of clip title being edited
+    /**
+     * Current id of clip title being edited
+     */
     private int modelID;
-    //Media folder
+    /**
+     * Media folder
+     */
     private File folder;
 
     public Clips() {
