@@ -5,7 +5,6 @@ package com.isanga.securitycam.Fragments;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -21,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.isanga.securitycam.Adapters.ClipsRecyclerViewAdapter;
 import com.isanga.securitycam.Models.ClipsModel;
@@ -38,15 +36,19 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
  */
 public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRecyclerViewListener {
 
+    //List to preview clips
     private RecyclerView recyclerView;
     //Holds a list of clips
     private ArrayList<ClipsModel> models;
+    //Tools needed for recyclerview
     private RecyclerView.LayoutManager manager;
     private ClipsRecyclerViewAdapter adapter;
+    //Popup dialog to edit title of clips
     private AlertDialog editTitle;
     private EditText titleEditor;
+    //Current id of clip title being edited
     private int modelID;
-
+    //Media folder
     private File folder;
 
     public Clips() {
@@ -59,12 +61,15 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_clips, container, false);
+        //Get the clips folder
         folder = getContext().getExternalFilesDir("media");
+        //Initializes private variables
         editTitle = new AlertDialog.Builder(getContext()).create();
         titleEditor = new EditText(getContext());
         editTitle.setTitle("Edit title");
         editTitle.setView(titleEditor);
 
+        //Handles editing titles when SAVE is clicked
         editTitle.setButton(DialogInterface.BUTTON_POSITIVE, "SAVE", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -74,7 +79,6 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
                 File newVideo = new File(path + "/" + newTitle);
                 video.renameTo(newVideo);
                 models.get(modelID).setTitle(newTitle);
-                adapter.notifyDataSetChanged();
             }
         });
 
@@ -82,6 +86,7 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
             setUpRecyclerView(view);
             loadThumbnails();
         }
+        //Need to register recyclerview for ContextMenu to work
         registerForContextMenu(recyclerView);
         return view;
 
@@ -116,6 +121,11 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         startActivity(intent);
     }
 
+    /**
+     * Handles menu clicks when holding a clip
+     * @param item
+     * @return
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -131,6 +141,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     }
 
+    /**
+     * Deletes selected clip from the recyclerview and from storage
+     * @param id
+     */
     private void deleteClip(int id){
         String path = folder.getAbsolutePath() + "/" + models.get(id).getTitle();
         File video = new File(path);
@@ -140,6 +154,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         Log.d(TAG, "deleteClip: " + path);
     }
 
+    /**
+     * Starts an intent to share selected video
+     * @param id
+     */
     private void shareClip(int id){
         String path = folder.getAbsolutePath() + "/" + models.get(id).getTitle();
         File video = new File(path);
@@ -151,6 +169,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         startActivity(Intent.createChooser(intent, "send"));
     }
 
+    /**
+     * Opens up AlertDialog to allow editing title of selected clip
+     * @param id
+     */
     private void editClip(int id){
         modelID = id;
         titleEditor.setText(models.get(id).getTitle());

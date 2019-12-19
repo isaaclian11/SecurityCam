@@ -47,7 +47,6 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
                 .thumbnail(0.1f)
                 .centerCrop()
                 .into(holder.clipThumbnail);
-        holder.clipTitle.setText(models.get(position).getTitle());
     }
 
     @Override
@@ -58,7 +57,6 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
             View.OnCreateContextMenuListener {
         ImageView clipThumbnail;
-        TextView clipTitle;
         ClipsRecyclerViewListener listener;
 
         public ViewHolder(@NonNull View itemView, ClipsRecyclerViewListener listener) {
@@ -67,7 +65,6 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
             itemView.setOnClickListener(this);
             this.listener = listener;
             itemView.setOnCreateContextMenuListener(this);
-            clipTitle = itemView.findViewById(R.id.clip_title);
         }
 
         @Override

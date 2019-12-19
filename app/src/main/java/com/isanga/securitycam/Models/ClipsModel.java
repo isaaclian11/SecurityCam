@@ -3,7 +3,9 @@ package com.isanga.securitycam.Models;
 
 import java.io.File;
 
-//For now, title is good enough.
+/**
+ * Clips model class for RecyclerView
+ */
 public class ClipsModel {
     private String title;
     private File thumbnail;
