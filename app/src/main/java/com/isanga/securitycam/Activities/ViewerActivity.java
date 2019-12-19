@@ -49,7 +49,7 @@ public class ViewerActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_viewer);
 
-        mButtonHome = findViewById(R.id.homeButtonS);
+        mButtonHome = findViewById(R.id.btnHome);
         mVideoView = findViewById(R.id.videoView);
         mUri = Uri.parse(getString(R.string.enter_ip));
         updateVideo(mUri);
@@ -74,7 +74,10 @@ public class ViewerActivity extends AppCompatActivity {
         mButtonHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                finish();
             }
         });
     }
