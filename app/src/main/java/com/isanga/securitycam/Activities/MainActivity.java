@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout; //The menu layout
 
     private static int MY_PERMISSIONS_REQUEST_CAMERA;
+    private static int MY_PERMISSIONS_REQUEST_AUDIO;
+    private static int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
+        //Audio permissions.
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.RECORD_AUDIO)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        MY_PERMISSIONS_REQUEST_AUDIO);
+            }
+        }
+
+        //External storage permissions.
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+            }
+        }
+
         //Needed to overwrite the default actionbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = findViewById(R.id.menu_drawer);
 
         //Opens Home fragment when app is first opened
-        if(savedInstanceState==null) {
+        if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new Home())
                     .commit();
@@ -70,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Opens a fragment corresponding to the menu item
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.gesture_menu_home:
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new Home())
