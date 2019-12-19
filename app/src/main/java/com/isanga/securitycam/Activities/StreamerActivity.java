@@ -203,7 +203,7 @@ public class StreamerActivity extends AppCompatActivity
      */
     private void startStyle(){
         mBtnStartStop.setBackgroundColor(0xFFB9F6CA);
-        mBtnStartStop.setText(R.string.start_alt);
+        mBtnStartStop.setText(R.string.start);
     }
 
     /**
@@ -211,6 +211,6 @@ public class StreamerActivity extends AppCompatActivity
      */
     private void stopStyle(){
         mBtnStartStop.setBackgroundColor(0xFFFF8A80);
-        mBtnStartStop.setText(R.string.stop_alt);
+        mBtnStartStop.setText(R.string.stop);
     }
 }
