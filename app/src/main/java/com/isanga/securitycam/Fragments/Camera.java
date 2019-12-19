@@ -11,6 +11,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.media.CamcorderProfile;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -35,11 +36,14 @@ import com.isanga.securitycam.R;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link Fragment} subclass for the Camera.
+ * Currently this fragment holds a camera preview and buttons to record video.
  */
 public class Camera extends Fragment {
     private static final String TAG = "CameraFragment";
@@ -55,7 +59,7 @@ public class Camera extends Fragment {
 
     /**
      * Handler to use for camera processes. Required by openCamera and createCaptureSession.
-     * TODO We may need another handler for both processes.
+     * We may want another handler for both processes but they are separate events.
      */
     private Handler mHandler;
 
@@ -90,12 +94,7 @@ public class Camera extends Fragment {
     private Button record;
 
     /**
-     * Stop recording button.
-     */
-    private Button stop;
-
-    /**
-     * Does not work on emulator. Used to record video and audio.
+     * Does not work on emulator according to MediaRecorder. Used to record video and audio.
      */
     MediaRecorder mediaRecorder;
 
@@ -106,6 +105,10 @@ public class Camera extends Fragment {
         //to avoid constantly opening the camera
         boolean secondCall;
 
+        /**
+         * {@inheritDoc}
+         * @param surfaceHolder
+         */
         @Override
         public void surfaceCreated(SurfaceHolder surfaceHolder) {
             Log.d(TAG, "Surface created");
@@ -113,6 +116,13 @@ public class Camera extends Fragment {
             secondCall = false;
         }
 
+        /**
+         * {@inheritDoc}
+         * @param surfaceHolder
+         * @param i
+         * @param i1
+         * @param i2
+         */
         @Override
         public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
             Log.d(TAG, "surfaceChanged");
@@ -143,11 +153,15 @@ public class Camera extends Fragment {
                 } catch (SecurityException e) {
                     Log.d(TAG, "Found some security exception while opening camera");
                 }
-                
+
                 secondCall = true;
             }
         }
 
+        /**
+         * {@inheritDoc}
+         * @param surfaceHolder The surface holder.
+         */
         @Override
         public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
             Log.d(TAG, "Surface destroyed");
@@ -159,31 +173,16 @@ public class Camera extends Fragment {
      * Implementation of callbacks for the camera device.
      */
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
+        /**
+         * Prepares the preview and media recorder once the camera is ready and opened.
+         * @param cameraDevice The camera being used.
+         * {@inheritDoc}
+         */
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             Log.d(TAG, "Camera onOpened");
 
             setMediaRecorder();
-            File folder = new File(getContext().getExternalFilesDir(null), "media");
-            if (!folder.exists()) {
-                folder.mkdir();
-            } else if (!folder.isDirectory() && folder.canWrite()) {
-                folder.delete();
-                folder.mkdir();
-            }
-            Log.d(TAG, "" + folder);
-            try {
-                File name = File.createTempFile("Recording_", ".mp4", folder);
-                mediaRecorder.setOutputFile(name.getAbsolutePath());
-                Log.d(TAG, "" + name);
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to create video file name: " + e);
-            }
-            try {
-                mediaRecorder.prepare();
-            } catch (IOException e) {
-                Log.e(TAG, "Media recorder prepare failed with " + e);
-            }
 
             List<Surface> surfaceList = new ArrayList<>();
             surfaceList.add(mSurfaceView.getHolder().getSurface());
@@ -192,16 +191,25 @@ public class Camera extends Fragment {
             try {
                 cameraDevice.createCaptureSession(surfaceList, mCaptureSession, mHandler);
             } catch (CameraAccessException e) {
+                Log.e(TAG, "Unable to create capture session: " + e);
             }
 
             mCameraDevice = cameraDevice;
         }
 
+        /**
+         * Callback when camera is disconnected. Currently only logs.
+         * {@inheritDoc}
+         */
         @Override
         public void onDisconnected(@NonNull CameraDevice cameraDevice) {
             Log.d(TAG, "Camera onDisconnected");
         }
 
+        /**
+         * Callback when camera is connected. Currently only logs.
+         * {@inheritDoc}
+         */
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int i) {
             Log.d(TAG, "Camera onError");
@@ -217,24 +225,33 @@ public class Camera extends Fragment {
      * Listener for the session ready/not ready cause the documentation mentions that creating a capture session is an expensive operation.
      */
     private CameraCaptureSession.StateCallback mCaptureSession = new CameraCaptureSession.StateCallback() {
+        /**
+         * Creates a repeating capture request for preview and media recorder.
+         * {@inheritDoc}
+         * @param cameraCaptureSession The capture session.
+         */
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
             Log.d(TAG, "Camera configured");
             if (mSurfaceHolder != null) {
                 try {
-                    CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_RECORD);
+                    CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_RECORD); //RECORD
                     captureRequest.addTarget(mSurfaceHolder.getSurface());
                     captureRequest.addTarget(mediaRecorder.getSurface());
                     captureRequest.build();
-                    cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null);
+                    cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null); //not sure if we need to set a new handler yet
                 } catch (CameraAccessException e) {
-
+                    Log.e(TAG, "Unable to access camera for setting capture session repeating request: " + e);
                 }
             }
 
             mCameraCaptureSession = cameraCaptureSession;
         }
 
+        /**
+         * {@inheritDoc}
+         * @param cameraCaptureSession The capture session.
+         */
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
             Log.d(TAG, "Camera failed configuration");
@@ -249,7 +266,6 @@ public class Camera extends Fragment {
 
     /**
      * {@inheritDoc}
-     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -267,56 +283,7 @@ public class Camera extends Fragment {
         setSurface(layout);
         //start recording
         record = layout.findViewById(R.id.record);
-        record.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Starting media recorder");
-                mediaRecorder.start();
-            }
-        });
-        //stop recording
-        stop = layout.findViewById(R.id.stop);
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Stopping media recorder");
-
-                try {
-                    mCameraCaptureSession.stopRepeating();
-                    mCameraCaptureSession.abortCaptures();
-                } catch (CameraAccessException e) {
-                    Log.e(TAG, "Can't access camera to stop camera capture session: " + e);
-                }
-
-                mediaRecorder.stop();
-
-                mCaptureSession = new CameraCaptureSession.StateCallback() {
-                    @Override
-                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-                        mCameraCaptureSession = cameraCaptureSession;
-                        if (mSurfaceHolder != null) {
-                            try {
-                                CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_RECORD);
-                                captureRequest.addTarget(mSurfaceHolder.getSurface());
-                                captureRequest.addTarget(mediaRecorder.getSurface());
-                                captureRequest.build();
-                                cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null);
-                            } catch (CameraAccessException e) {
-                                Log.e(TAG, "Unable to access camera for camera capture session after stop: " + e);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                        Log.d(TAG, "Configure for camera capture session failed after stop");
-                    }
-                };
-                //reset fragment
-                Camera cameraFragment = (Camera) getFragmentManager().findFragmentById(R.id.fragment_container);
-                getFragmentManager().beginTransaction().detach(cameraFragment).attach(cameraFragment).commit();
-            }
-        });
+        record.setOnClickListener(startRecording);
 
         return layout;
     }
@@ -351,16 +318,98 @@ public class Camera extends Fragment {
     private void setMediaRecorder() {
         //they suggest to use this for API level 8 or higher but we will set them manually
         //mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+        mediaRecorder.setOrientationHint(90);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-        mediaRecorder.setVideoFrameRate(30);
+        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+        //failed attempt, will just use setProfile like suggested
+
+        //get path to clip storage and make sure directory is there or else errors
+        File folder = new File(getContext().getExternalFilesDir(null), "media");
+        if (!folder.exists()) {
+            folder.mkdir();
+        } else if (!folder.isDirectory() && folder.canWrite()) {
+            folder.delete();
+            folder.mkdir();
+        }
+        Log.d(TAG, "" + folder);
+        try {
+            //we may want to change this so they clips are in order
+            String time = new SimpleDateFormat("yyMMdd_HHmmss").format(new Date());
+            File name = File.createTempFile(time, "", folder);
+            mediaRecorder.setOutputFile(name.getAbsolutePath());
+            Log.d(TAG, "" + name);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to create video file name: " + e);
+        }
+        try {
+            mediaRecorder.prepare();
+        } catch (IOException e) {
+            Log.e(TAG, "Media recorder prepare failed with " + e);
+        }
     }
 
+    private View.OnClickListener startRecording = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mediaRecorder.start();
+            record.setText("Stop");
+            record.setBackgroundColor(0xFFFF8A80);
+            record.setOnClickListener(stopRecording);
+        }
+    };
+
     /**
-     * Used to make sure the app has the required permissions.
+     * On click listener to stop the recording.
+     */
+    private View.OnClickListener stopRecording = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Log.d(TAG, "Stopping media recorder");
+
+            try {
+                mCameraCaptureSession.stopRepeating();
+                mCameraCaptureSession.abortCaptures();
+            } catch (CameraAccessException e) {
+                Log.e(TAG, "Can't access camera to stop camera capture session: " + e);
+            }
+
+            mediaRecorder.stop();
+
+            mCaptureSession = new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    mCameraCaptureSession = cameraCaptureSession;
+                    if (mSurfaceHolder != null) {
+                        try {
+                            CaptureRequest.Builder captureRequest = mCameraDevice.createCaptureRequest(mCameraDevice.TEMPLATE_RECORD);
+                            captureRequest.addTarget(mSurfaceHolder.getSurface());
+                            captureRequest.addTarget(mediaRecorder.getSurface());
+                            captureRequest.build();
+                            cameraCaptureSession.setRepeatingRequest(captureRequest.build(), null, null);
+                        } catch (CameraAccessException e) {
+                            Log.e(TAG, "Unable to access camera for camera capture session after stop: " + e);
+                        }
+                    }
+                }
+
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    Log.d(TAG, "Configure for camera capture session failed after stop");
+                }
+            };
+            //reset fragment
+            Camera cameraFragment = (Camera) getFragmentManager().findFragmentById(R.id.fragment_container);
+            getFragmentManager().beginTransaction().detach(cameraFragment).attach(cameraFragment).commit();
+
+            record.setText("Record");
+            record.setBackgroundColor(0xFFB9F6CA);
+            record.setOnClickListener(startRecording);
+        }
+    };
+
+    /**
+     * Used to make sure the app has the required permissions before using things requiring them.
      */
     private void checkPermissions() {
         //Camera permissions
