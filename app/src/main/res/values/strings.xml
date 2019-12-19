@@ -24,4 +24,9 @@
 
     <string name="start">Start</string>
     <string name="stop">Stop</string>
+    
+    <string name="clip_delete">Delete</string>
+    <string name="clip_share">Share</string>
+    <string name="clip_edit">Edit</string>
+    
 </resources>

@@ -1,13 +1,14 @@
 package com.isanga.securitycam.Fragments;
 
 
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -73,6 +74,11 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -108,7 +114,7 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
             }
         });
 
-        if(savedInstanceState==null) {
+        if (savedInstanceState == null) {
             setUpRecyclerView(view);
             loadThumbnails();
         }
@@ -122,9 +128,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     /**
      * Sets up the recycler view
+     *
      * @param view
      */
-    private void setUpRecyclerView(View view){
+    private void setUpRecyclerView(View view) {
         recyclerView = view.findViewById(R.id.clips_recyclerview);
         models = new ArrayList<>();
         manager = new GridLayoutManager(getContext(), 3);
@@ -135,6 +142,7 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     /**
      * Handles click event on items from the list
+     *
      * @param position position of the item being clicked
      */
     @Override
@@ -151,12 +159,13 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     /**
      * Handles menu clicks when holding a clip
+     *
      * @param item
      * @return
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.clip_delete:
                 deleteClip(item.getGroupId());
                 return true;
@@ -174,9 +183,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     /**
      * Deletes selected clip from the recyclerview and from storage
+     *
      * @param id
      */
-    private void deleteClip(int id){
+    private void deleteClip(int id) {
         String path = folder.getAbsolutePath() + "/" + models.get(id).getTitle();
         File video = new File(path);
         video.delete();
@@ -187,9 +197,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     /**
      * Starts an intent to share selected video
+     *
      * @param id
      */
-    private void shareClip(int id){
+    private void shareClip(int id) {
         String path = folder.getAbsolutePath() + "/" + models.get(id).getTitle();
         File video = new File(path);
         Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", video);
@@ -202,9 +213,10 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
 
     /**
      * Opens up AlertDialog to allow editing title of selected clip
+     *
      * @param id
      */
-    private void editClip(int id){
+    private void editClip(int id) {
         modelID = id;
         titleEditor.setText(models.get(id).getTitle());
         editTitle.show();
@@ -213,20 +225,19 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
     /**
      * Loads thumbnails from media folder
      */
-    private void loadThumbnails(){
+    private void loadThumbnails() {
         String path = folder.getAbsolutePath();
         Log.d(TAG, "loadThumbnails: " + path);
-        if(folder.exists()){
+        if (folder.exists()) {
             File[] videos = folder.listFiles();
-            if(videos!=null) {
+            if (videos != null) {
                 for (File video : videos) {
                     Log.d(TAG, "currentThumbnail: " + video.getAbsolutePath());
-                    if(video.length()!=0)
+                    if (video.length() != 0)
                         models.add(new ClipsModel(video.getName(), video));
                 }
             }
-        }
-        else{
+        } else {
             folder.mkdirs();
         }
 
