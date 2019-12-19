@@ -48,16 +48,28 @@ public class User extends Fragment {
      * Google authentication handlers
      */
     private GoogleSignInClient signInClient;
+    /**
+     * Firebase Authentication
+     */
     private FirebaseAuth mAuth;
 
     private static final int RC_SIGN_IN = 9001;
 
     /**
-     *Buttons and TextView
+     *TextView to display user's name
      */
     private TextView username;
+    /**
+     * Sign in button
+     */
     private Button signinBtn;
+    /**
+     * Sign out button
+     */
     private Button signoutBtn;
+    /**
+     * Sync button
+     */
     private Button syncBtn;
 
     /**
@@ -84,6 +96,7 @@ public class User extends Fragment {
         signInClient = GoogleSignIn.getClient(getContext(), googleSignInOptions);
         mAuth = FirebaseAuth.getInstance();
 
+        //Initialize buttons and textview
         username = view.findViewById(R.id.user_id);
         signinBtn = view.findViewById(R.id.user_signinBtn);
         signoutBtn = view.findViewById(R.id.user_signoutBtn);
