@@ -56,7 +56,7 @@ public class User extends Fragment {
     private static final int RC_SIGN_IN = 9001;
 
     /**
-     *TextView to display user's name
+     * TextView to display user's name
      */
     private TextView username;
     /**
@@ -138,6 +138,7 @@ public class User extends Fragment {
 
     /**
      * Brings up the sign in page for Google accounts
+     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -160,6 +161,7 @@ public class User extends Fragment {
 
     /**
      * Starts authenticating user using GoogleSignInAccount
+     *
      * @param account account to sign in with
      */
     private void startAuth(GoogleSignInAccount account) {
@@ -181,14 +183,14 @@ public class User extends Fragment {
 
     /**
      * Updates TextView to display current user's name
+     *
      * @param user
      */
-    private void updateName(FirebaseUser user){
-        if(user!=null) {
+    private void updateName(FirebaseUser user) {
+        if (user != null) {
             String name = user.getDisplayName();
             username.setText(name);
-        }
-        else{
+        } else {
             username.setText("");
         }
     }
@@ -196,7 +198,7 @@ public class User extends Fragment {
     /**
      * Checks if anyone is currently logged in and updates name
      */
-    private void checkLoginState(){
+    private void checkLoginState() {
         FirebaseUser user = mAuth.getCurrentUser();
         updateName(user);
     }
@@ -204,7 +206,7 @@ public class User extends Fragment {
     /**
      * Starts an intent for google authentication
      */
-    private void signin(){
+    private void signin() {
         Intent intent = signInClient.getSignInIntent();
         startActivityForResult(intent, RC_SIGN_IN);
     }
@@ -212,7 +214,7 @@ public class User extends Fragment {
     /**
      * Signs out current user and sets TextView of name empty
      */
-    private void signout(){
+    private void signout() {
         mAuth.signOut();
         userid = null;
         signInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -226,8 +228,8 @@ public class User extends Fragment {
     /**
      * Uploads all of current user's files to Firebase Storage
      */
-    private void syncFiles(){
-        if(userid!=null) {
+    private void syncFiles() {
+        if (userid != null) {
             File folder = getContext().getExternalFilesDir("media");
             FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
             StorageReference mStorageRef = firebaseStorage.getReference();
@@ -250,8 +252,7 @@ public class User extends Fragment {
                             }
                         });
                     }
-                }
-                else{
+                } else {
                     Toast.makeText(getContext(), "Folder empty", Toast.LENGTH_LONG).show();
                 }
             } else {

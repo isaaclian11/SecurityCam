@@ -9,6 +9,7 @@ import java.io.File;
 public class ClipsModel {
     private String title;
     private File thumbnail;
+
     public ClipsModel(String title, File file) {
         this.title = title;
         this.thumbnail = file;
