@@ -20,4 +20,11 @@ public class ClipsModel {
         return thumbnail;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setThumbnail(File thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 }

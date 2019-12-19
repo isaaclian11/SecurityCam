@@ -81,7 +81,7 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
         public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
             contextMenu.add(this.getAdapterPosition(), R.id.clip_delete, 0, R.string.clip_delete);
             contextMenu.add(this.getAdapterPosition(), R.id.clip_share, 0, R.string.clip_share);
-
+            contextMenu.add(this.getAdapterPosition(), R.id.clip_edit, 0, "Edit");
         }
 
 

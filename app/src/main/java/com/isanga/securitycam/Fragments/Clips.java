@@ -2,6 +2,8 @@ package com.isanga.securitycam.Fragments;
 
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -18,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.isanga.securitycam.Adapters.ClipsRecyclerViewAdapter;
@@ -40,6 +43,9 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
     private ArrayList<ClipsModel> models;
     private RecyclerView.LayoutManager manager;
     private ClipsRecyclerViewAdapter adapter;
+    private AlertDialog editTitle;
+    private EditText titleEditor;
+    private int modelID;
 
     private File folder;
 
@@ -54,6 +60,24 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_clips, container, false);
         folder = getContext().getExternalFilesDir("media");
+        editTitle = new AlertDialog.Builder(getContext()).create();
+        titleEditor = new EditText(getContext());
+        editTitle.setTitle("Edit title");
+        editTitle.setView(titleEditor);
+
+        editTitle.setButton(DialogInterface.BUTTON_POSITIVE, "SAVE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String path = folder.getAbsolutePath();
+                File video = new File(path + "/" + models.get(modelID).getTitle());
+                String newTitle = titleEditor.getText().toString();
+                File newVideo = new File(path + "/" + newTitle);
+                video.renameTo(newVideo);
+                models.get(modelID).setTitle(newTitle);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
         if(savedInstanceState==null) {
             setUpRecyclerView(view);
             loadThumbnails();
@@ -99,6 +123,8 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
                 deleteClip(item.getGroupId());
             case R.id.clip_share:
                 shareClip(item.getGroupId());
+            case R.id.clip_edit:
+                editClip(item.getGroupId());
             default:
                 return super.onContextItemSelected(item);
         }
@@ -123,6 +149,12 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
         intent.setAction(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(intent, "send"));
+    }
+
+    private void editClip(int id){
+        modelID = id;
+        titleEditor.setText(models.get(id).getTitle());
+        editTitle.show();
     }
 
     /**

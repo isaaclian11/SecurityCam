@@ -6,4 +6,7 @@
     <item
         android:id="@+id/clip_delete"
         android:title="@string/clip_delete"/>
+    <item
+        android:id="@+id/clip_edit"
+        android:title="@string/clip_edit"/>
 </menu>
