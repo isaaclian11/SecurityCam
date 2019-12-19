@@ -16,7 +16,7 @@
     <string name="user_signout">Sign Out</string>
     <string name="user_sync">Sync Files</string>
 
-
+    <string name="enter_ip">rtsp://10.26.40.54:8554/f.ts</string>
 
     <string name="viewer">Viewer</string>
 
