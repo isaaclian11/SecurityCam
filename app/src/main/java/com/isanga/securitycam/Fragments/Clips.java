@@ -111,6 +111,8 @@ public class Clips extends Fragment implements ClipsRecyclerViewAdapter.ClipsRec
                 File newVideo = new File(path + "/" + newTitle);
                 video.renameTo(newVideo);
                 models.get(modelID).setTitle(newTitle);
+                models.get(modelID).setThumbnail(newVideo);
+                adapter.notifyDataSetChanged();
             }
         });
 
