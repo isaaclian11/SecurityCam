@@ -176,8 +176,6 @@ public class User extends Fragment {
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateName(user);
                             userid = mAuth.getCurrentUser().getUid();
-                        } else {
-                            //TODO
                         }
                     }
                 });
