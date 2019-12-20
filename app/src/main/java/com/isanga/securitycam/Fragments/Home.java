@@ -57,7 +57,7 @@ public class Home extends Fragment {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!spyMode) {
+                if (!spyMode) {
                     Toast spyToast = Toast.makeText(view.getContext(), "Spy mode activated", Toast.LENGTH_SHORT);
                     spyToast.show();
                     spyMode = true;
@@ -70,7 +70,7 @@ public class Home extends Fragment {
         });
 
         //make it so the link is clickable
-        Linkify.addLinks(textView, Linkify.PHONE_NUMBERS|Linkify.WEB_URLS);
+        Linkify.addLinks(textView, Linkify.PHONE_NUMBERS | Linkify.WEB_URLS);
 
         return layout;
     }

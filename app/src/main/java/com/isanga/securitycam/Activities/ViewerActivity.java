@@ -54,7 +54,7 @@ public class ViewerActivity extends AppCompatActivity {
         mUri = Uri.parse(getString(R.string.enter_ip));
         updateVideo(mUri);
 
-        mIpText =  findViewById(R.id.editTextIP);
+        mIpText = findViewById(R.id.editTextIP);
 
         mIpText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override

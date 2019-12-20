@@ -3,6 +3,7 @@ package com.isanga.securitycam.Fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -34,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.isanga.securitycam.Activities.StreamerActivity;
 import com.isanga.securitycam.R;
 
 import java.io.File;
@@ -285,6 +287,7 @@ public class Camera extends Fragment {
 
     /**
      * {@inheritDoc}
+     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -300,9 +303,17 @@ public class Camera extends Fragment {
         mCameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
         View layout = inflater.inflate(R.layout.fragment_camera, container, false);
         setSurface(layout);
-        //start recording
         record = layout.findViewById(R.id.record);
         record.setOnClickListener(startRecording);
+        Button stream = layout.findViewById(R.id.stream);
+        stream.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), StreamerActivity.class);
+                startActivity(intent);
+
+            }
+        });
 
         return layout;
     }
@@ -314,9 +325,9 @@ public class Camera extends Fragment {
     public void onPause() {
         super.onPause();
 
-        if(!recorded) {
+        if (!recorded) {
             boolean deleted = lastFile.delete();
-            if(deleted) {
+            if (deleted) {
                 Log.d(TAG, lastFile + " was deleted");
             }
         }
@@ -330,6 +341,7 @@ public class Camera extends Fragment {
 
     /**
      * Setup the surface for preview and recording.
+     *
      * @param layout
      */
     private void setSurface(View layout) {

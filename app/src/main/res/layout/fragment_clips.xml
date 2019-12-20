@@ -6,8 +6,8 @@
     tools:context=".Fragments.Clips">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/clips_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/clips_recyclerview"/>
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

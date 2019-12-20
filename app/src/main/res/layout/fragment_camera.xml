@@ -20,6 +20,17 @@
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
         android:background="#B9F6CA"
-        android:text="Record" />
+        android:text="@string/record" />
+
+    <Button
+        android:id="@+id/stream"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="#B9F6CA"
+        android:text="@string/stream" />
 
 </RelativeLayout>

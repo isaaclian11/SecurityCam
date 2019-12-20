@@ -36,7 +36,7 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
      */
     private Context context;
 
-    public ClipsRecyclerViewAdapter(Context context, ArrayList<ClipsModel> list, ClipsRecyclerViewListener listener){
+    public ClipsRecyclerViewAdapter(Context context, ArrayList<ClipsModel> list, ClipsRecyclerViewListener listener) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.models = list;
@@ -45,6 +45,7 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
 
     /**
      * Initializes a row
+     *
      * @param parent
      * @param viewType
      * @return
@@ -52,12 +53,13 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= layoutInflater.inflate(R.layout.clip_item_row, parent, false);
+        View view = layoutInflater.inflate(R.layout.clip_item_row, parent, false);
         return new ViewHolder(view, listener);
     }
 
     /**
      * Updates list with the correct thumbnails
+     *
      * @param holder
      * @param position
      */
@@ -65,7 +67,7 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         File file = models.get(position).getThumbnail();
         Glide.with(context)
-               .load(Uri.fromFile(file))
+                .load(Uri.fromFile(file))
                 .thumbnail(0.1f)
                 .centerCrop()
                 .into(holder.clipThumbnail);
@@ -73,6 +75,7 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
 
     /**
      * Size of items in list
+     *
      * @return
      */
     @Override
@@ -104,13 +107,13 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
 
         /**
          * Calls on click and passes in clicked item's position
+         *
          * @param v
          */
         @Override
         public void onClick(View v) {
             listener.onItemClick(getAdapterPosition());
         }
-
 
 
         @Override
@@ -126,7 +129,7 @@ public class ClipsRecyclerViewAdapter extends RecyclerView.Adapter<ClipsRecycler
     /**
      * Interface for on clicks
      */
-    public interface ClipsRecyclerViewListener{
+    public interface ClipsRecyclerViewListener {
         void onItemClick(int position);
     }
 }
