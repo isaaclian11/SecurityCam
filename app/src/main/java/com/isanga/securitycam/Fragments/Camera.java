@@ -98,6 +98,11 @@ public class Camera extends Fragment {
     private Button record;
 
     /**
+     * Stream button.
+     */
+    private Button stream;
+
+    /**
      * Does not work on emulator according to MediaRecorder. Used to record video and audio.
      */
     MediaRecorder mediaRecorder;
@@ -305,7 +310,7 @@ public class Camera extends Fragment {
         setSurface(layout);
         record = layout.findViewById(R.id.record);
         record.setOnClickListener(startRecording);
-        Button stream = layout.findViewById(R.id.stream);
+        stream = layout.findViewById(R.id.stream);
         stream.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -392,6 +397,7 @@ public class Camera extends Fragment {
         @Override
         public void onClick(View view) {
             mediaRecorder.start();
+            stream.setVisibility(View.INVISIBLE);
             record.setText("Stop");
             record.setBackgroundColor(0xFFFF8A80);
             record.setOnClickListener(stopRecording);
