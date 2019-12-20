@@ -245,7 +245,7 @@ public class User extends Fragment {
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                Toast.makeText(getContext(), "Succefully synced", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Successfully synced", Toast.LENGTH_LONG).show();
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
